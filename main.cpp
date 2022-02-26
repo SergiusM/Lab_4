@@ -1,35 +1,107 @@
 #include <iostream>
-#include <algorithm>
-
-// Есть ли в строке s заданная буква
-bool isConsist(int i, char c, std::string& s)
+#include <chrono>
+#define N 10000
+#define M 1000
+class Timer
 {
-    if (i > s.length())
-        return false;
-    if (s[i] == c)
-        return true;
-    return isConsist(i + 1, c, s);
+private:
+	using clock_t = std::chrono::high_resolution_clock;
+	using second_t = std::chrono::duration<double, std::ratio<1> >;
+
+	std::chrono::time_point<clock_t> m_beg;
+
+public:
+	Timer() : m_beg(clock_t::now())
+	{
+	}
+
+	void reset()
+	{
+		m_beg = clock_t::now();
+	}
+
+	double elapsed() const
+	{
+		return std::chrono::duration_cast<second_t>(clock_t::now() - m_beg).count();
+	}
+};
+struct T_List
+{
+	T_List* next;
+	int n;
+};
+void Add(T_List* head, int age)
+{
+	T_List* p = new T_List;
+	p->n = age;
+
+	p->next = head->next;
+	head->next = p;
 }
 
-// Факториал f(n) = n * f(n-1)
-int f(int n)
+void Print(T_List* head)
 {
-    // 1. Терминирующее условие
-    if (n == 0)
-        return 1;
+	T_List* p = head->next;
+	while (p != nullptr)
+	{
+		std::cout << p->n << std::endl;
+		p = p->next;
+	}
+}
 
-    // 2. Запуск рекурсии с отличающимися параметрами
-    return n * f(n - 1);
+void Delete(T_List* head,int k)
+{
+	T_List* tmp;
+	T_List* p = head;
+	while (p->next != nullptr)
+	{
+		if (p->next->n==k)
+		{
+			tmp = p->next;
+			p->next = p->next->next;
+			delete tmp;
+		}
+		else
+			p = p->next;
+	}
 }
 
 int main()
 {
-    std::cout << f(6) << std::endl;
-    std::string s = "bcad";
-    std::cout << isConsist(0, 'e', s) << std::endl;
+	srand(time(0));
+	T_List* head = new T_List;
+	head->next = nullptr;
+	int k;
+	int mas[N];
+	std::cin >> k;
+	for (int i = 0; i < N; i++)
+		Add(head, (rand() % 10));
 
-    int x[10] = { 1,2,3,462,621,6,2,6,7 };
-    std::sort(x, x + 10);
-
-    return 0;
+	Timer A;
+	for (int j = 0; j < M; j++)
+		Delete(head,k);
+	std::cout << "Del List = " << A.elapsed() << std::endl;
+	for (int i = 0; i < N; i++)
+	{
+		mas[i]=(rand()%10);
+	}
+	int n = N;
+	Timer B;
+	for (int j = 0; j < M; j++)
+	{
+		for (int i = 0; i < N; i++)
+		{
+			if (mas[i] == k)
+			{
+				for (int j = i; j <= n - 1; j++)
+					mas[j] = mas[j + 1];
+				n--;
+				i--;
+			}
+		}
+	}
+	std::cout << "Del Mas = " << B.elapsed() << std::endl;
+	delete[] mas;
+	delete head;
+	return 0;
 }
