@@ -101,7 +101,6 @@ int main()
 		}
 	}
 	std::cout << "Del Mas = " << B.elapsed() << std::endl;
-	delete[] mas;
 	delete head;
 	return 0;
 }
